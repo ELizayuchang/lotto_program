@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽奖页面</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: 1.5rem; /* 自适应字体大小 */
+        }
+        #rollingName {
+            font-size: 1.5rem; /* 调整字体大小适应小屏 */
+            margin: 20px 0;
+            color: black; /* 黑色字体 */
+            word-wrap: break-word; /* 如果会员名称过长，允许换行 */
+        }
+        .button-row, .download-row {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .button-row button, .download-row button {
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 1rem; /* 按钮字体大小适中 */
+            cursor: pointer;
+            border: none;
+            color: rgb(32, 31, 31);
+            border-radius: 5px; /* 圆角按钮 */
+            transition: background-color 0.3s ease;
+        }
+        .button-row button:hover, .download-row button:hover {
+            background-color: #ecf2f8; /* 按钮悬停效果 */
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            #rollingName {
+                font-size: 1.2rem;
+            }
+            .button-row button, .download-row button {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>会员抽奖活动</h1>
+    <div id="rollingName">等待开始...</div>
+    <div class="button-row">
+        <button onclick="startRolling()">开始滚动</button>
+        <button onclick="stopRolling()">停止滚动</button>
+    </div>
+    <div class="download-row">
+        <button onclick="downloadWinners()">下载中奖名单</button>
+    </div>
+    <script>
+        let names = []; // 将从服务器获取的会员名称数组
+        let rollingInterval = null;
+        let currentIndex = 0;
+
+        // 获取会员名单
+        async function fetchNames() {
+            const response = await fetch('/get_names');
+            const data = await response.json();
+            names = data.names;
+        }
+
+        // 开始滚动
+        function startRolling() {
+            if (rollingInterval) return;
+            if (names.length === 0) return alert("会员名单为空！");
+            rollingInterval = setInterval(() => {
+                currentIndex = Math.floor(Math.random() * names.length);
+                document.getElementById('rollingName').innerText = names[currentIndex];
+            }, 50);
+        }
+
+        // 停止滚动
+        async function stopRolling() {
+            if (!rollingInterval) return;
+            clearInterval(rollingInterval);
+            rollingInterval = null;
+            const winner = names[currentIndex];
+            document.getElementById('rollingName').innerText = `恭喜：${winner}`;
+            // 记录中奖者到后台
+            await fetch('/add_winner', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ index: currentIndex + 1, name: winner })
+            });
+        }
+
+        // 下载中奖名单
+        function downloadWinners() {
+            window.location.href = '/download_winners';
+        }
+
+        // 初始化获取会员名单
+        fetchNames();
+    </script>
+</body>
+</html>
