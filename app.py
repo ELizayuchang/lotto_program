@@ -5,7 +5,7 @@ import os
 app = Flask(__name__, static_folder='.', template_folder='.')  # 指定当前目录为静态文件目录
 
 # 读取Excel文件
-EXCEL_FILE = '会员名单测试版.xlsx'  # 请确保该文件存在
+EXCEL_FILE = "/home/ElizaYU/lotto_program/会员名单测试版.xlsx"  # 请确保该文件存在
 WINNERS_FILE = '中奖名单.xlsx'
 
 df = pd.read_excel(EXCEL_FILE)
