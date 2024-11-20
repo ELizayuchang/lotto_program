@@ -5,8 +5,10 @@ import os
 app = Flask(__name__, static_folder='.', template_folder='.')  # 指定当前目录为静态文件目录
 
 # 读取Excel文件
+print("Current working directory:", os.getcwd())
 EXCEL_FILE = "/home/ElizaYU/lotto_program/会员名单测试版.xlsx"  # 请确保该文件存在
 WINNERS_FILE = '中奖名单.xlsx'
+print("Excel file path:", EXCEL_FILE)
 
 df = pd.read_excel(EXCEL_FILE)
 winners = pd.DataFrame(columns=df.columns)
